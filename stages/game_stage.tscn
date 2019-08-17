@@ -1,0 +1,71 @@
+[gd_scene load_steps=7 format=1]
+
+[ext_resource path="res://scripts/game_stage.gd" type="Script" id=1]
+[ext_resource path="res://scenes/GUI.tscn" type="PackedScene" id=2]
+[ext_resource path="res://sprites/background_day.png" type="Texture" id=3]
+[ext_resource path="res://scenes/ground.tscn" type="PackedScene" id=4]
+[ext_resource path="res://scenes/bird.tscn" type="PackedScene" id=5]
+
+[sub_resource type="GDScript" id=1]
+
+script/source = "#SPAWN SCRIPT
+extends Position2D
+
+var pipe = load(\"res://scenes/pipe_green.tscn\")
+var time_spawn   = 1.5
+var current_time = 0
+
+onready var state_machine = get_tree().get_root().get_node(\"/root/state_machine\")
+
+func _ready():
+	set_process(true)
+
+func _process(delta):
+	if (state_machine.get_current_state() == state_machine.PLAY):
+		current_time = current_time + delta
+		
+		if current_time > time_spawn:
+			var p = pipe.instance()
+			p.set_pos(Vector2(get_pos().x, rand_range(-80, 29)))
+			get_owner().add_child(p)
+			current_time = 0"
+
+[node name="root" type="Node"]
+
+script/script = ExtResource( 1 )
+parallax_speed = 35
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+layer = 1
+offset = Vector2( 0, 0 )
+rotation = 0.0
+scale = Vector2( 1, 1 )
+
+[node name="Control" parent="CanvasLayer" instance=ExtResource( 2 )]
+
+margin/right = 144.0
+margin/bottom = 238.0
+
+[node name="background" type="Sprite" parent="."]
+
+z/z = -1
+texture = ExtResource( 3 )
+centered = false
+region = true
+region_rect = Rect2( 0, 0, 144, 256 )
+
+[node name="Area2D" parent="." instance=ExtResource( 4 )]
+
+z/z = 1
+
+[node name="spawn" type="Position2D" parent="."]
+
+transform/pos = Vector2( 173, 0 )
+script/script = SubResource( 1 )
+
+[node name="bird" parent="." instance=ExtResource( 5 )]
+
+transform/pos = Vector2( 35.4738, 123.327 )
+
+
